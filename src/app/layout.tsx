@@ -1,5 +1,5 @@
+import NavBar from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -23,7 +23,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					{children}
-					<ThemeToggle />
+					<NavBar />
 				</ThemeProvider>
 			</body>
 		</html>
