@@ -1,11 +1,9 @@
 import { ThemeToggle } from "./theme-toggle";
 import {
 	NavigationMenu,
-	NavigationMenuContent,
 	NavigationMenuItem,
 	NavigationMenuLink,
 	NavigationMenuList,
-	NavigationMenuTrigger,
 } from "./ui/navigation-menu";
 
 export default function NavBar() {
@@ -35,17 +33,9 @@ export default function NavBar() {
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
-							<NavigationMenuTrigger>
+							<NavigationMenuLink href="/resources">
 								Resources
-							</NavigationMenuTrigger>
-							<NavigationMenuContent>
-								<NavigationMenuLink href="/links">
-									Quick Links
-								</NavigationMenuLink>
-								<NavigationMenuLink href="/posts">
-									Posts & Minutes
-								</NavigationMenuLink>
-							</NavigationMenuContent>
+							</NavigationMenuLink>
 						</NavigationMenuItem>
 					</NavigationMenuList>
 				</NavigationMenu>
