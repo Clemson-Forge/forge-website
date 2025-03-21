@@ -31,7 +31,7 @@ export default function NavBar() {
 
 			<div className="hidden sm:flex w-2/3 justify-center">
 				<NavigationMenu>
-					<NavigationMenuList className="flex lg:space-x-16 md:space-x-8 sm:space-x-4">
+					<NavigationMenuList className="flex lg:space-x-16 md:space-x-8 sm:space-x-2">
 						<NavigationMenuItem>
 							<NavigationMenuLink href="/">
 								Home
@@ -45,6 +45,11 @@ export default function NavBar() {
 						<NavigationMenuItem>
 							<NavigationMenuLink href="/members">
 								Members
+							</NavigationMenuLink>
+						</NavigationMenuItem>
+						<NavigationMenuItem>
+							<NavigationMenuLink href="/apply">
+								Apply
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
@@ -96,19 +101,28 @@ export default function NavBar() {
 								<NavigationMenuItem>
 									<NavigationMenuLink
 										className="py-2"
-										href="/contact"
-									>
-										Contact
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
 										href="/members"
 									>
 										Members
 									</NavigationMenuLink>
 								</NavigationMenuItem>
+								<NavigationMenuItem>
+									<NavigationMenuLink
+										className="py-2"
+										href="/apply"
+									>
+										Apply
+									</NavigationMenuLink>
+								</NavigationMenuItem>
+								<NavigationMenuItem>
+									<NavigationMenuLink
+										className="py-2"
+										href="/contact"
+									>
+										Contact
+									</NavigationMenuLink>
+								</NavigationMenuItem>
+
 								<NavigationMenuItem>
 									<NavigationMenuLink
 										className="py-2"

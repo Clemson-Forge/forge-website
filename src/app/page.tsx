@@ -14,7 +14,7 @@ export default function Home() {
 				</p>
 			</div>
 
-			<div className="w-full max-w-xl text-center mt-12">
+			<div className="w-full max-w-xl text-center mt-8">
 				<h2 className="text-2xl font-semibold mb-6">
 					Our Mentors Have Worked At
 				</h2>
@@ -35,8 +35,8 @@ export default function Home() {
 							<Image
 								src={img.src}
 								alt={img.alt}
-								width={100}
-								height={100}
+								width={80}
+								height={80}
 								className="max-h-full max-w-full object-contain"
 							/>
 						</div>
@@ -44,7 +44,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			<div className="w-full max-w-3xl p-6 mb-auto mt-12">
+			<div className="w-full max-w-3xl p-6 mb-auto mt-4">
 				<h2 className="text-2xl font-semibold mb-4 text-center">
 					Organization Github Activity
 				</h2>
