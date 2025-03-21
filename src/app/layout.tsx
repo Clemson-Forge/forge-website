@@ -64,7 +64,7 @@ export default function RootLayout({
 								</svg>
 							</a>
 							<a
-								href="https://discord.gg/clemson-forge"
+								href="https://discord.gg/2eH92z3Kh5"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
