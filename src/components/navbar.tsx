@@ -43,13 +43,13 @@ export default function NavBar() {
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
-							<NavigationMenuLink href="/contact">
-								Contact
+							<NavigationMenuLink href="/members">
+								Members
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
-							<NavigationMenuLink href="/members">
-								Members
+							<NavigationMenuLink href="/contact">
+								Contact
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
