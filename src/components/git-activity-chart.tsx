@@ -38,7 +38,7 @@ export default function GitActivity() {
 
 	const today = new Date();
 	const startDate = new Date();
-	startDate.setMonth(today.getMonth() - 6);
+	startDate.setDate(today.getDate() - 26 * 7);
 
 	return (
 		<CalendarHeatmap
