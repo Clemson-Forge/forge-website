@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
 		console.log(request);
 
 		const res = await resend.emails.send({
-			from: email,
-			to: "contact@clemsonforge.org",
+			to: ["contact@clemsonforge.org"],
 			subject: `Contact Form: ${subject}`,
 			html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`,
+			from: "Clemson Forge <noreply@clemsonforge.org>",
 		});
 
 		console.log(res);
