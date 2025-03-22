@@ -19,8 +19,6 @@ export default function GitActivity() {
 				const response = await fetch("/api/git-activity");
 				const data = await response.json();
 
-				console.log(JSON.stringify(data, null, 2));
-
 				setActivityData(data);
 			} catch (error) {
 				console.error("Failed to fetch GitHub activity", error);
@@ -33,7 +31,24 @@ export default function GitActivity() {
 	}, []);
 
 	if (isLoading) {
-		return <div className="text-center py-8">Loading activity data...</div>;
+		return (
+			<div className="animate-pulse">
+				<div className="flex flex-col">
+					<div className="grid grid-cols-26">
+						{Array.from({ length: 26 }).map((_, row) => (
+							<div key={row} className="flex flex-col gap-0.5">
+								{Array.from({ length: 7 }).map((_, col) => (
+									<div
+										key={`${row}-${col}`}
+										className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 bg-gray-200"
+									></div>
+								))}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
 	}
 
 	const today = new Date();
