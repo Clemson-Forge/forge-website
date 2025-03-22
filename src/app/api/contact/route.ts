@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 		const request = await req.json();
 		const { name, email, subject, message } = request;
 
-		const res = await resend.emails.send({
+		await resend.emails.send({
 			to: ["contact@clemsonforge.org"],
 			subject: `Contact Form: ${subject}`,
 			html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`,
