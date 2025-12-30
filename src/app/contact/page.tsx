@@ -119,7 +119,7 @@ export default function ContactPage() {
 										/>
 									</FormControl>
 									<FormDescription>
-										We'll never share your email with anyone
+										We will never share your email with anyone
 										else.
 									</FormDescription>
 									<FormMessage />

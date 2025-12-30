@@ -19,7 +19,7 @@ export default function AboutPage() {
 					complex projects.
 				</p>
 				<p className="text-lg mt-4">
-					Whether you're a beginner looking to start your first
+					Whether you are a beginner looking to start your first
 					project or an experienced developer wanting to tackle new
 					challenges, Clemson Forge provides the community and support
 					to help you succeed.
