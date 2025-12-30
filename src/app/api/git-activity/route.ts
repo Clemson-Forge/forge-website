@@ -1,6 +1,21 @@
 import { members } from "@/models/members";
 import { NextResponse } from "next/server";
 
+interface Contribution {
+	date: string;
+	count: number;
+}
+
+interface GitActivity {
+	username: string;
+	data: {
+		contributions: Array<{
+			date: string;
+			count: number;
+		}>;
+	};
+}
+
 export async function GET() {
 	try {
 		const gitActivities = await Promise.all(
@@ -16,24 +31,10 @@ export async function GET() {
 			}),
 		);
 
-		interface Contribution {
-			date: string;
-			count: number;
-		}
-
-		interface GitActivity {
-			username: string;
-			data: {
-				contributions: Array<{
-					date: string;
-					count: number;
-				}>;
-			};
-		}
-
 		const combinedActivities: Contribution[] = gitActivities.flatMap(
-			(activity: GitActivity) =>
-				activity.data.contributions
+			(activity: GitActivity) => {
+				const contributions = activity?.data?.contributions ?? [];
+				return contributions
 					.filter((contribution) => contribution.count > 0)
 					.map((contribution): Contribution => {
 						const date = new Date(contribution.date);
@@ -44,10 +45,10 @@ export async function GET() {
 							date: newDateStr,
 							count: contribution.count,
 						};
-					}),
+					});
+			},
 		);
 
-		// Sort the combined activities by date
 		combinedActivities.sort(
 			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
 		);
