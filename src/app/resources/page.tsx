@@ -127,7 +127,7 @@ export default function ResourcesPage() {
 					</Link>
 					<p>
 						- Official student hackathon league behind over 300
-						hackathons thorughout the year, including Clemson's
+						hackathons thorughout the year, including Clemson&apos;s
 						CUHackit!
 					</p>
 				</div>

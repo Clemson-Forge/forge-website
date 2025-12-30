@@ -5,7 +5,7 @@ export default function AboutPage() {
 				<h2 className="text-2xl font-semibold mb-4 text-center">
 					Our Mission
 				</h2>
-				<p className="text-lg">
+				<p className="text-lg" style={{ cursor: "pointer" }}>
 					Our goal is to empower computer science students to build
 					meaningful projects that enhance their resumes and practical
 					skills. By providing resources, mentorship, and
@@ -19,7 +19,7 @@ export default function AboutPage() {
 					complex projects.
 				</p>
 				<p className="text-lg mt-4">
-					Whether you're a beginner looking to start your first
+					Whether you are a beginner looking to start your first
 					project or an experienced developer wanting to tackle new
 					challenges, Clemson Forge provides the community and support
 					to help you succeed.
