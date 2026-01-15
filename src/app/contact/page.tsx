@@ -43,7 +43,6 @@ export default function ContactPage() {
 	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log(values);
 		fetch("/api/contact", {
 			method: "POST",
 			headers: {
@@ -57,10 +56,10 @@ export default function ContactPage() {
 				}
 				return response.json();
 			})
-			.then((data) => {
-				console.log("Success:", data);
+			.then(() => {
 				alert("Form submitted successfully!");
 			})
+
 			.catch((error) => {
 				console.error("Error:", error);
 				alert(
@@ -119,8 +118,8 @@ export default function ContactPage() {
 										/>
 									</FormControl>
 									<FormDescription>
-										We will never share your email with anyone
-										else.
+										We will never share your email with
+										anyone else.
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
