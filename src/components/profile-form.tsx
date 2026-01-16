@@ -12,11 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import supabase from "@/lib/supabase";
+import { AvatarUploadError, uploadProfileAvatar } from "@/lib/upload-avatar";
 
 const profileSchema = z.object({
 	displayName: z
@@ -47,6 +48,9 @@ const profileSchema = z.object({
 		.refine((val) => !val || val === "" || val.includes("github.com"), {
 			message: "Must be a GitHub profile URL",
 		}),
+	avatarUrl: z
+		.union([z.literal(""), z.string().url("Avatar URL must be valid")])
+		.optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -79,6 +83,9 @@ export function ProfileForm({
 		"idle" | "submitting" | "success" | "error"
 	>("idle");
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [uploadingAvatar, setUploadingAvatar] = useState(false);
+	const [avatarError, setAvatarError] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	async function authorizedFetch(
 		input: RequestInfo | URL,
@@ -107,6 +114,7 @@ export function ProfileForm({
 			gradYear: "",
 			linkedinUrl: "",
 			githubUrl: "",
+			avatarUrl: "",
 		},
 	});
 
@@ -129,6 +137,7 @@ export function ProfileForm({
 					gradYear: data.gradYear ?? "",
 					linkedinUrl: data.linkedinUrl ?? "",
 					githubUrl: data.githubUrl ?? "",
+					avatarUrl: data.avatarUrl ?? "",
 				});
 				setErrorMessage(null);
 			} catch (error) {
@@ -174,6 +183,7 @@ export function ProfileForm({
 				gradYear: updated.gradYear ?? values.gradYear ?? "",
 				linkedinUrl: updated.linkedinUrl ?? values.linkedinUrl,
 				githubUrl: updated.githubUrl ?? values.githubUrl ?? "",
+				avatarUrl: updated.avatarUrl ?? values.avatarUrl ?? "",
 			});
 			setStatus("success");
 			onSuccess?.(updated);
@@ -190,6 +200,44 @@ export function ProfileForm({
 		}
 	}
 
+	async function handleAvatarFileChange(
+		event: ChangeEvent<HTMLInputElement>,
+	) {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		setAvatarError(null);
+		setUploadingAvatar(true);
+
+		try {
+			const publicUrl = await uploadProfileAvatar(file);
+			form.setValue("avatarUrl", publicUrl, {
+				shouldDirty: true,
+				shouldValidate: true,
+			});
+			form.clearErrors("avatarUrl");
+		} catch (error) {
+			console.error(error);
+			if (error instanceof AvatarUploadError) {
+				setAvatarError(error.message);
+			} else {
+				setAvatarError("Failed to upload image. Please try again.");
+			}
+		} finally {
+			setUploadingAvatar(false);
+			event.target.value = "";
+		}
+	}
+
+	function handleRemoveAvatar() {
+		form.setValue("avatarUrl", "", {
+			shouldDirty: true,
+			shouldValidate: true,
+		});
+		form.clearErrors("avatarUrl");
+		setAvatarError(null);
+	}
+
 	const watchValues = form.watch();
 	const previewData = useMemo(
 		() => ({
@@ -199,6 +247,7 @@ export function ProfileForm({
 			gradYear: watchValues.gradYear,
 			linkedinUrl: watchValues.linkedinUrl,
 			githubUrl: watchValues.githubUrl,
+			avatarUrl: watchValues.avatarUrl,
 		}),
 		[
 			watchValues.displayName,
@@ -207,6 +256,7 @@ export function ProfileForm({
 			watchValues.gradYear,
 			watchValues.linkedinUrl,
 			watchValues.githubUrl,
+			watchValues.avatarUrl,
 		],
 	);
 
@@ -241,6 +291,89 @@ export function ProfileForm({
 							Add the details we share on the club directory.
 						</p>
 					</div>
+
+					<FormField
+						control={form.control}
+						name="avatarUrl"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Profile photo</FormLabel>
+								<FormControl>
+									<div className="flex items-center gap-4">
+										<input
+											type="hidden"
+											{...field}
+											value={field.value ?? ""}
+										/>
+										<div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-muted">
+											{field.value ? (
+												<img
+													src={field.value}
+													alt="Profile photo preview"
+													className="h-full w-full object-cover"
+												/>
+											) : (
+												<span className="text-lg font-semibold text-muted-foreground">
+													{previewData.displayName?.charAt(
+														0,
+													) ?? "?"}
+												</span>
+											)}
+										</div>
+										<div className="flex flex-1 flex-col gap-2">
+											<input
+												ref={fileInputRef}
+												type="file"
+												accept="image/png,image/jpeg,image/webp,image/gif"
+												className="hidden"
+												onChange={
+													handleAvatarFileChange
+												}
+											/>
+											<div className="flex flex-wrap gap-2">
+												<Button
+													type="button"
+													variant="secondary"
+													onClick={() =>
+														fileInputRef.current?.click()
+													}
+													disabled={uploadingAvatar}
+												>
+													{uploadingAvatar
+														? "Uploading…"
+														: "Upload photo"}
+												</Button>
+												{field.value && (
+													<Button
+														type="button"
+														variant="ghost"
+														onClick={
+															handleRemoveAvatar
+														}
+														disabled={
+															uploadingAvatar
+														}
+													>
+														Remove
+													</Button>
+												)}
+											</div>
+											<p className="text-xs text-muted-foreground">
+												PNG, JPG, WebP, or GIF up to
+												5MB.
+											</p>
+											{avatarError && (
+												<p className="text-xs text-destructive">
+													{avatarError}
+												</p>
+											)}
+										</div>
+									</div>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
 					<FormField
 						control={form.control}
@@ -391,8 +524,19 @@ export function ProfileForm({
 
 					<div className="mt-6 rounded-lg border bg-background p-5">
 						<div className="flex items-center gap-4">
-							<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-lg font-semibold">
-								{previewData.displayName?.charAt(0) ?? "?"}
+							<div className="h-16 w-16 overflow-hidden rounded-full bg-muted">
+								{previewData.avatarUrl ? (
+									<img
+										src={previewData.avatarUrl}
+										alt="Profile photo preview"
+										className="h-full w-full object-cover"
+									/>
+								) : (
+									<div className="flex h-full w-full items-center justify-center text-lg font-semibold text-muted-foreground">
+										{previewData.displayName?.charAt(0) ??
+											"?"}
+									</div>
+								)}
 							</div>
 							<div>
 								<p className="text-lg font-semibold">

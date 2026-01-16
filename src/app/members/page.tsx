@@ -1,6 +1,4 @@
 import { createClient } from "@/lib/supabase-server";
-import Image from "next/image";
-
 export const revalidate = 300;
 
 type PublicProfile = {
@@ -67,22 +65,17 @@ function GitHubIcon() {
 }
 
 function MemberCard({ profile }: { profile: PublicProfile }) {
-	const avatarSrc =
-		profile.avatar_url ||
-		(profile.github_username
-			? `https://github.com/${profile.github_username}.png`
-			: null);
+	const avatarSrc = profile.avatar_url;
 
 	return (
 		<div className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-transform duration-300 hover:scale-[1.01]">
 			<div className="relative h-48 w-full bg-muted">
 				{avatarSrc ? (
-					<Image
+					<img
 						src={avatarSrc}
 						alt={`${profile.display_name ?? "Member"} avatar`}
-						fill
-						className="object-cover"
-						unoptimized
+						className="h-full w-full object-cover"
+						loading="lazy"
 					/>
 				) : (
 					<div className="flex h-full items-center justify-center text-2xl font-semibold text-muted-foreground">

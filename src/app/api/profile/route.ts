@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 
 const PROFILE_FIELDS =
-	"display_name, role, headline, grad_year, github_url, github_username, linkedin_url, last_activity_sync, updated_at";
+	"display_name, role, headline, grad_year, github_url, github_username, linkedin_url, avatar_url, last_activity_sync, updated_at";
 
 type Role = "executive" | "mentor" | "member";
 
@@ -51,6 +51,18 @@ function extractGithubUsername(url?: string | null) {
 	return cleaned || null;
 }
 
+function normalizeAvatarUrl(url?: string | null) {
+	if (!url) return null;
+	const trimmed = url.toString().trim();
+	if (!trimmed) return null;
+	try {
+		const parsed = new URL(trimmed);
+		return parsed.toString();
+	} catch {
+		throw new Error("Avatar URL must be a valid URL");
+	}
+}
+
 function serializeProfileResponse(
 	user: {
 		id: string;
@@ -65,6 +77,7 @@ function serializeProfileResponse(
 		github_url?: string | null;
 		github_username?: string | null;
 		linkedin_url?: string | null;
+		avatar_url?: string | null;
 		last_activity_sync?: string | null;
 		updated_at?: string | null;
 	},
@@ -80,6 +93,7 @@ function serializeProfileResponse(
 		githubUrl: profile?.github_url ?? "",
 		githubUsername: profile?.github_username ?? "",
 		linkedinUrl: profile?.linkedin_url ?? "",
+		avatarUrl: profile?.avatar_url ?? null,
 		lastActivitySync: profile?.last_activity_sync ?? null,
 		updatedAt: profile?.updated_at ?? null,
 	};
@@ -167,6 +181,21 @@ export async function PATCH(req: NextRequest) {
 		const githubUrl = normalizeGithubUrl(body.githubUrl);
 		const githubUsername = extractGithubUsername(githubUrl);
 
+		let avatarUrl: string | null = null;
+		try {
+			avatarUrl = normalizeAvatarUrl(body.avatarUrl);
+		} catch (error) {
+			return NextResponse.json(
+				{
+					error:
+						error instanceof Error
+							? error.message
+							: "Invalid avatar URL",
+				},
+				{ status: 400 },
+			);
+		}
+
 		if (!displayName) {
 			return NextResponse.json(
 				{ error: "Display name is required" },
@@ -197,6 +226,7 @@ export async function PATCH(req: NextRequest) {
 			linkedin_url: linkedinUrl,
 			github_url: githubUrl,
 			github_username: githubUsername,
+			avatar_url: avatarUrl,
 			updated_at: new Date().toISOString(),
 		};
 
@@ -224,6 +254,7 @@ export async function PATCH(req: NextRequest) {
 					linkedin_url: payload.linkedin_url,
 					github_url: payload.github_url ?? undefined,
 					github_username: payload.github_username ?? undefined,
+					avatar_url: payload.avatar_url ?? undefined,
 					updated_at: payload.updated_at,
 				},
 			),

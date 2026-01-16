@@ -16,12 +16,12 @@ export default function Home() {
 					</p>
 				</div>
 				<div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
+					{/* <Link
 						href="/apply"
 						className="rounded-full bg-primary px-6 py-3 text-center text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5"
 					>
 						Apply to Forge
-					</Link>
+					</Link> */}
 					<Link
 						href="/members"
 						className="rounded-full border px-6 py-3 text-center text-sm font-semibold transition hover:-translate-y-0.5"
