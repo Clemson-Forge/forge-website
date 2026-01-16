@@ -41,8 +41,8 @@ export default function NavBar() {
 		{ href: "/", label: "Home" },
 		{ href: "/about", label: "About" },
 		{ href: "/members", label: "Members" },
-		{ href: "/apply", label: "Apply" },
-		{ href: "/contact", label: "Contact" },
+		// { href: "/apply", label: "Apply" },
+		// { href: "/contact", label: "Contact" },
 		{ href: "/resources", label: "Resources" },
 	];
 
@@ -84,7 +84,7 @@ export default function NavBar() {
 								<button
 									type="button"
 									onClick={handleAuthNav}
-									className="rounded-md px-4 py-2 text-sm font-medium transition hover:bg-accent hover:text-accent-foreground"
+									className="rounded-md px-4 py-2 text-sm font-medium transition hover:bg-accent hover:text-accent-foreground hover:cursor-pointer"
 								>
 									{authLabel}
 								</button>
@@ -98,7 +98,7 @@ export default function NavBar() {
 				<ThemeToggle />
 			</div>
 
-			<div className="sm:hidden flex flex-grow justify-end items-center">
+			<div className="md:hidden flex grow justify-end items-center">
 				<button onClick={toggleMenu} className="p-2">
 					{isMenuOpen ? <X size={24} /> : <Menu size={24} />}
 				</button>
@@ -125,7 +125,7 @@ export default function NavBar() {
 										<button
 											type="button"
 											onClick={handleAuthNav}
-											className="py-2 text-left text-sm font-medium"
+											className="py-2 text-left text-sm font-medium hover:cursor-pointer"
 										>
 											{authLabel}
 										</button>
