@@ -122,6 +122,9 @@
 	}
 }
 
+.react-calendar-heatmap .color-empty {
+	fill: #ebedf0;
+}
 .react-calendar-heatmap .color-scale-1 {
 	fill: #d6e685;
 }

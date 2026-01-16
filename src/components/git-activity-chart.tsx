@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 
@@ -12,23 +12,49 @@ interface ActivityItem {
 export default function GitActivity() {
 	const [activityData, setActivityData] = useState<ActivityItem[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
+		let active = true;
 		async function fetchData() {
+			setIsLoading(true);
+			setError(null);
 			try {
-				const response = await fetch("/api/git-activity");
+				const response = await fetch("/api/git-activity", {
+					cache: "no-store",
+				});
+				if (!response.ok) {
+					throw new Error("Request failed");
+				}
 				const data = await response.json();
-
-				setActivityData(data);
-			} catch (error) {
-				console.error("Failed to fetch GitHub activity", error);
+				if (!active) return;
+				setActivityData(Array.isArray(data) ? data : []);
+			} catch (err) {
+				if (!active) return;
+				console.error("Failed to fetch GitHub activity", err);
+				setError("We couldn't load the activity chart right now.");
+				setActivityData([]);
 			} finally {
-				setIsLoading(false);
+				if (active) setIsLoading(false);
 			}
 		}
 
 		fetchData();
+		return () => {
+			active = false;
+		};
 	}, []);
+
+	const today = new Date();
+	const startDate = new Date();
+	startDate.setDate(today.getDate() - 26 * 7);
+
+	const maxCount = useMemo(() => {
+		const counts = activityData
+			.map((item) => item.count)
+			.filter((count) => count > 0);
+		return counts.length ? Math.max(...counts) : 0;
+	}, [activityData]);
 
 	if (isLoading) {
 		return (
@@ -40,7 +66,7 @@ export default function GitActivity() {
 								{Array.from({ length: 7 }).map((_, col) => (
 									<div
 										key={`${row}-${col}`}
-										className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 bg-gray-200"
+										className="h-3 w-3 bg-muted sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6"
 									></div>
 								))}
 							</div>
@@ -51,9 +77,18 @@ export default function GitActivity() {
 		);
 	}
 
-	const today = new Date();
-	const startDate = new Date();
-	startDate.setDate(today.getDate() - 26 * 7);
+	if (error) {
+		return <p className="text-center text-sm text-destructive">{error}</p>;
+	}
+
+	if (activityData.length === 0) {
+		return (
+			<div className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
+				No club GitHub activity has been synced yet. Schedule the sync
+				job to populate this chart.
+			</div>
+		);
+	}
 
 	return (
 		<CalendarHeatmap
@@ -61,14 +96,9 @@ export default function GitActivity() {
 			endDate={today}
 			values={activityData}
 			classForValue={(value) => {
-				if (!value || !value.count) {
+				if (!value || !value.count || maxCount === 0) {
 					return "color-empty";
 				}
-				const maxCount = Math.max(
-					...activityData
-						.filter((item) => item && item.count)
-						.map((item) => item.count),
-				);
 				const step = Math.max(1, Math.ceil(maxCount / 8));
 				if (value.count <= step) {
 					return "color-scale-1";
@@ -84,9 +114,8 @@ export default function GitActivity() {
 					return "color-scale-6";
 				} else if (value.count <= step * 7) {
 					return "color-scale-7";
-				} else {
-					return "color-scale-8";
 				}
+				return "color-scale-8";
 			}}
 		/>
 	);

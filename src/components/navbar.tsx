@@ -2,8 +2,10 @@
 
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
+import supabase from "@/lib/supabase";
 import {
 	NavigationMenu,
 	NavigationMenuItem,
@@ -12,7 +14,45 @@ import {
 } from "./ui/navigation-menu";
 
 export default function NavBar() {
+	const router = useRouter();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [authLabel, setAuthLabel] = useState("Sign In");
+
+	useEffect(() => {
+		let isMounted = true;
+		supabase.auth.getSession().then(({ data }) => {
+			if (!isMounted) return;
+			if (data.session) {
+				setAuthLabel("Profile");
+			}
+		});
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange((_event, session) => {
+			setAuthLabel(session ? "Profile" : "Sign In");
+		});
+		return () => {
+			isMounted = false;
+			subscription.unsubscribe();
+		};
+	}, []);
+
+	const navLinks: { href: string; label: string }[] = [
+		{ href: "/", label: "Home" },
+		{ href: "/about", label: "About" },
+		{ href: "/members", label: "Members" },
+		// { href: "/apply", label: "Apply" },
+		// { href: "/contact", label: "Contact" },
+		{ href: "/resources", label: "Resources" },
+	];
+
+	const handleAuthNav = async () => {
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		router.push(session ? "/profile" : "/signin");
+		setIsMenuOpen(false);
+	};
 
 	const toggleMenu = () => {
 		setIsMenuOpen(!isMenuOpen);
@@ -32,34 +72,22 @@ export default function NavBar() {
 			<div className="hidden sm:flex w-2/3 justify-center">
 				<NavigationMenu>
 					<NavigationMenuList className="flex lg:space-x-16 md:space-x-8 sm:space-x-2">
+						{navLinks.map((link) => (
+							<NavigationMenuItem key={link.href}>
+								<NavigationMenuLink href={link.href}>
+									{link.label}
+								</NavigationMenuLink>
+							</NavigationMenuItem>
+						))}
 						<NavigationMenuItem>
-							<NavigationMenuLink href="/">
-								Home
-							</NavigationMenuLink>
-						</NavigationMenuItem>
-						<NavigationMenuItem>
-							<NavigationMenuLink href="/about">
-								About
-							</NavigationMenuLink>
-						</NavigationMenuItem>
-						<NavigationMenuItem>
-							<NavigationMenuLink href="/members">
-								Members
-							</NavigationMenuLink>
-						</NavigationMenuItem>
-						<NavigationMenuItem>
-							<NavigationMenuLink href="/apply">
-								Apply
-							</NavigationMenuLink>
-						</NavigationMenuItem>
-						<NavigationMenuItem>
-							<NavigationMenuLink href="/contact">
-								Contact
-							</NavigationMenuLink>
-						</NavigationMenuItem>
-						<NavigationMenuItem>
-							<NavigationMenuLink href="/resources">
-								Resources
+							<NavigationMenuLink asChild>
+								<button
+									type="button"
+									onClick={handleAuthNav}
+									className="rounded-md px-4 py-2 text-sm font-medium transition hover:bg-accent hover:text-accent-foreground hover:cursor-pointer"
+								>
+									{authLabel}
+								</button>
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 					</NavigationMenuList>
@@ -70,7 +98,7 @@ export default function NavBar() {
 				<ThemeToggle />
 			</div>
 
-			<div className="sm:hidden flex flex-grow justify-end items-center">
+			<div className="md:hidden flex grow justify-end items-center">
 				<button onClick={toggleMenu} className="p-2">
 					{isMenuOpen ? <X size={24} /> : <Menu size={24} />}
 				</button>
@@ -82,53 +110,25 @@ export default function NavBar() {
 					<nav className="flex flex-col p-4">
 						<NavigationMenu>
 							<NavigationMenuList className="flex flex-col">
+								{navLinks.map((link) => (
+									<NavigationMenuItem key={link.href}>
+										<NavigationMenuLink
+											className="py-2"
+											href={link.href}
+										>
+											{link.label}
+										</NavigationMenuLink>
+									</NavigationMenuItem>
+								))}
 								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/"
-									>
-										Home
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/about"
-									>
-										About
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/members"
-									>
-										Members
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/apply"
-									>
-										Apply
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/contact"
-									>
-										Contact
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="py-2"
-										href="/resources"
-									>
-										Resources
+									<NavigationMenuLink asChild>
+										<button
+											type="button"
+											onClick={handleAuthNav}
+											className="py-2 text-left text-sm font-medium hover:cursor-pointer"
+										>
+											{authLabel}
+										</button>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 							</NavigationMenuList>
