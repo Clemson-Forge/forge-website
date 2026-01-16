@@ -3,6 +3,7 @@
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import supabase from "@/lib/supabase";
 import {
@@ -13,19 +14,22 @@ import {
 } from "./ui/navigation-menu";
 
 export default function NavBar() {
+	const router = useRouter();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isAuthed, setIsAuthed] = useState(false);
+	const [authLabel, setAuthLabel] = useState("Sign In");
 
 	useEffect(() => {
 		let isMounted = true;
 		supabase.auth.getSession().then(({ data }) => {
 			if (!isMounted) return;
-			setIsAuthed(!!data.session);
+			if (data.session) {
+				setAuthLabel("Profile");
+			}
 		});
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setIsAuthed(!!session);
+			setAuthLabel(session ? "Profile" : "Sign In");
 		});
 		return () => {
 			isMounted = false;
@@ -33,18 +37,22 @@ export default function NavBar() {
 		};
 	}, []);
 
-	const profileHref = isAuthed ? "/profile" : "/signin";
-	const profileLabel = isAuthed ? "Profile" : "Sign In";
-
-	const navLinks = [
+	const navLinks: { href: string; label: string }[] = [
 		{ href: "/", label: "Home" },
 		{ href: "/about", label: "About" },
 		{ href: "/members", label: "Members" },
 		{ href: "/apply", label: "Apply" },
 		{ href: "/contact", label: "Contact" },
 		{ href: "/resources", label: "Resources" },
-		{ href: profileHref, label: profileLabel },
 	];
+
+	const handleAuthNav = async () => {
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		router.push(session ? "/profile" : "/signin");
+		setIsMenuOpen(false);
+	};
 
 	const toggleMenu = () => {
 		setIsMenuOpen(!isMenuOpen);
@@ -71,6 +79,17 @@ export default function NavBar() {
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 						))}
+						<NavigationMenuItem>
+							<NavigationMenuLink asChild>
+								<button
+									type="button"
+									onClick={handleAuthNav}
+									className="rounded-md px-4 py-2 text-sm font-medium transition hover:bg-accent hover:text-accent-foreground"
+								>
+									{authLabel}
+								</button>
+							</NavigationMenuLink>
+						</NavigationMenuItem>
 					</NavigationMenuList>
 				</NavigationMenu>
 			</div>
@@ -101,6 +120,17 @@ export default function NavBar() {
 										</NavigationMenuLink>
 									</NavigationMenuItem>
 								))}
+								<NavigationMenuItem>
+									<NavigationMenuLink asChild>
+										<button
+											type="button"
+											onClick={handleAuthNav}
+											className="py-2 text-left text-sm font-medium"
+										>
+											{authLabel}
+										</button>
+									</NavigationMenuLink>
+								</NavigationMenuItem>
 							</NavigationMenuList>
 						</NavigationMenu>
 					</nav>

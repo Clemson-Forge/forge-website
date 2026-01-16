@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { syncGithubActivity } from "@/lib/github-activity-sync";
 import { NextResponse } from "next/server";
 
 interface ActivityRow {
@@ -21,6 +22,12 @@ function aggregateContributions(rows: ActivityRow[]) {
 
 export async function GET() {
 	try {
+		try {
+			await syncGithubActivity();
+		} catch (error) {
+			console.error("GitHub activity sync on GET failed", error);
+		}
+
 		const supabase = await createClient();
 		const today = new Date();
 		const since = new Date();
